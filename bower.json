@@ -3,6 +3,8 @@
   "private": true,
   "dependencies": {
     "biojs": "biojs/biojs#v1.0",
-    "cytoscape": "cytoscape/cytoscape.js#~2.2.13"
+    "cytoscape": "cytoscape/cytoscape.js#~2.2.13",
+    "datatables": "~1.10.3",
+    "datatables-bootstrap3": "*"
   }
 }
