@@ -1,7 +1,7 @@
 (function(window, $, undefined) {
   'use strict';
 
-  var appContext = $('[data-app-name="KEGG-Pathway-App"]');
+  var appContext = $('[data-app-name="Protein-App"]');
 
   // This displays an error when Adama fails
   var showSearchError = function(json) {

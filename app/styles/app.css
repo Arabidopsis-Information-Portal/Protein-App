@@ -1,12 +1,16 @@
-#KEGG-Pathway-App-container img {
+#Protein-App-container img {
   max-width:100%;
   max-height:100%;
 }
 
-#KEGG-Pathway-App-container p {
+#Protein-App-container p {
   text-indent: 30px;
 }
 
-#KEGG-Pathway-App-container .err-text {
+#Protein-App-container .err-text {
   color: red;
+}
+
+#app-description {
+  font-size: 18px;
 }
