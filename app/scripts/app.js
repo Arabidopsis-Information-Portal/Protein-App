@@ -19,14 +19,15 @@
       // work with Datatables
       var html =
       "<table class='table table-striped' width='100%'>"+
-          "<thead><tr><th>Protein Identifier</th><th>More Information</th></tr></thead><tbody>";
+          "<thead><tr><th>Protein Identifier</th><th>Protein Name</th><th>More Information</th></tr></thead><tbody>";
       // Loops through every protein of the returned json
-      for (var i = 0; i < json.obj.result[0].length; i++) {
+      for (var i = 0; i < json.obj.result.length; i++) {
         // Sets entry as the result
-        var entry = json.obj.result[0][i];
+        var entry = json.obj.result[i]["mRNA.primaryIdentifier"];
+        var entryName = json.obj.result[i].name;
         // adds the html for one row in the table
         //First column is just the protein identifier
-        html += "<tr><td>" + entry + "</td>" +
+        html += "<tr><td>" + entry + "</td><td>" + entryName + "</td>" +
           //Second column is a button to show more information about the protein
           "<td><button type='button' class='btn btn-default btn-xs' id='more" + entry + "'>Show more information</button></td></tr>" +
           // The div holds the area that will be expanded, and its id is the protein identifier
@@ -45,7 +46,7 @@
         if ($(this).attr("id").substring(0,4) === "more") {
           // This function is called to show the data received about a specific protein
           var showProteinInfo = function(json) {
-            var html = "<ul class-'list-unstyled'>";
+            var html = "<br><ul class-'list-unstyled'>";
             var results = json.obj.result;
             for (var proteinCounter = 0; proteinCounter < results.length; proteinCounter++) {
               var protein = results[proteinCounter];
@@ -72,17 +73,17 @@
           // Sets the button that show protein info from expand to collapse
           $(this).html("Show less information");
           $(this).attr("id", "less" + identifier);
-          data.appendTo($(this).parent());
-          data.show();
+          data.appendTo($(this).parent().prev());
+          data.show(500);
         }
         else {
           // Sets the button that show protein info from collapse to expand
           $(this).html("Show more information");
           $(this).attr("id", "more" + identifier);
-          data.hide();
+          data.hide(500);
         }
       });
-      $(".data table", appContext).dataTable({"columnDefs": [{"targets": 1, "orderable": false, "searchable": false}]});
+      $(".data table", appContext).dataTable({"columnDefs": [{"targets": 2, "orderable": false, "searchable": false}]});
     };
 
     // This displays an error when Adama fails
