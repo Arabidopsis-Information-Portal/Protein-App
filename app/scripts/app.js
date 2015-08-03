@@ -19,7 +19,7 @@
       // work with Datatables
       var html =
       "<table class='table table-striped' width='100%'>"+
-          "<thead><tr><th>Protein Identifier</th></tr></thead><tbody>";
+          "<thead><tr><th>Protein Identifier</th><th>More Information</th></tr></thead><tbody>";
       // Loops through every protein of the returned json
       for (var i = 0; i < json.obj.result[0].length; i++) {
         // Sets entry as the result
@@ -28,62 +28,61 @@
         //First column is just the protein identifier
         html += "<tr><td>" + entry + "</td>" +
           //Second column is a button to show more information about the protein
-          "<td><button type='button' class='btn btn-default btn-xs' id='b" + entry + "'>Show more information</button></td></tr>" +
+          "<td><button type='button' class='btn btn-default btn-xs' id='more" + entry + "'>Show more information</button></td></tr>" +
           // The div holds the area that will be expanded, and its id is the protein identifier
-          "<div id='" + entry + "' class='proteinInfo collapse' data-toggle='collapse'>Loading...</div></td>";
+          "<div id='" + entry + "' class='proteinInfo collapse' data-toggle='collapse'>Loading...</div>";
       }
       html += "</tbody></table>";
       $(".data", appContext).html(html);
 
-      // This is called whenever the additional info for a pathway is called to expand
+      // This is called whenever one of the buttons is pressed
       $(".btn", appContext).click(function() {
-        // Gets the id of the area being expanded (which is the same as the entry which is the protein identifier)
-        var id = $(this).attr('id');
-        id = id.substring(1);
-        id = "#"+id;
+        // Gets the id of the button pressed (which is either "more" + proteinIdentifier or "less" + proteinIdentifier)
+        var buttonId = $(this).attr("id");
+        var identifier = buttonId.substring(4);
         // Sets data as the current object so it can be used later when it is no longer the current object
-        var data = $(id);
-        // This function is called to show the data received about a specific protein
-        var showProteinInfo = function(json) {
-          var html = "<br><ul class-'list-unstyled'>";
-          var results = json.obj.result[0];
-          for (var proteinCounter = 0; proteinCounter < results.length; proteinCounter++) {
-            var protein = results[proteinCounter];
-            for (var property in protein) {
-              html += "<li><b>" + property + "</b>: " + protein[property] + "</li>\n";
+        var data = $("div[id='" + identifier + "']", appContext);
+        if ($(this).attr("id").substring(0,4) === "more") {
+          // This function is called to show the data received about a specific protein
+          var showProteinInfo = function(json) {
+            var html = "<ul class-'list-unstyled'>";
+            var results = json.obj.result;
+            for (var proteinCounter = 0; proteinCounter < results.length; proteinCounter++) {
+              var protein = results[proteinCounter];
+              for (var property in protein) {
+                html += "<li><b>" + property + "</b>: " + protein[property] + "</li>\n";
+              }
+              html += "<br>";
             }
-            html += "\n";
-          }
-          html += "</ul>";
-          data.html(html);
-          console.log(data.html());
-          console.log(html);
-        };
+            html += "</ul>";
+            data.html(html);
+          };
 
-        // We just finished the function that handles displaying the return info
-        // from Adama if pathway info is requested. The function will only be called
-        // after Adama has retrieved the information. This is true for all functions referenced
-        // in calls to Adama
+          // We just finished the function that handles displaying the return info
+          // from Adama if protein info is requested. The function will only be called
+          // after Adama has retrieved the information. This is true for all functions referenced
+          // in calls to Adama
 
-        var params = {Identifier: id, Output: "all"};
-        Agave.api.adama.search(
-          {namespace: "jk-dev", service: "protein_api_v0.1", queryParams: params},
-          showProteinInfo,
-          showSearchError
-        );
-        // Sets the button that show pathway info from expand to collapse
-        $(id, appContext).html('<span class="glyphicon glyphicon-collapse-up" aria-hidden="true">');
+          var params = {Identifier: identifier, Output: "all"};
+          Agave.api.adama.search(
+            {namespace: "jk-dev", service: "protein_api_v0.1", queryParams: params},
+            showProteinInfo,
+            showSearchError
+          );
+          // Sets the button that show protein info from expand to collapse
+          $(this).html("Show less information");
+          $(this).attr("id", "less" + identifier);
+          data.appendTo($(this).parent());
+          data.show();
+        }
+        else {
+          // Sets the button that show protein info from collapse to expand
+          $(this).html("Show more information");
+          $(this).attr("id", "more" + identifier);
+          data.hide();
+        }
       });
-
-
-
-      // This is called when the area holding pathway info is called to collapse
-      $('.proteinInfo', appContext).on('hide.bs.collapse', function() {
-        // Gets the id of the area
-        var id = $(this).attr('id');
-        // Sets the button that show pathway info from collapse to expand
-        $(id, appContext).html('<span class="glyphicon glyphicon-collapse-down" aria-hidden="true">');
-      });
+      $(".data table", appContext).dataTable({"columnDefs": [{"targets": 1, "orderable": false, "searchable": false}]});
     };
 
     // This displays an error when Adama fails

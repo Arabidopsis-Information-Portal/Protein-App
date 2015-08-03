@@ -7,7 +7,7 @@
   <ul id="tabs" class="nav nav-tabs" role="tablist">
     <li role="tab"><a href="#about" aria-controls="about" data-toggle="tab">About</a></li>
     <li role="tab" class="active"><a href="#pathway-table" aria-controls="pathway-table" data-toggle="tab">Information Table</a></li>
-    <li role="tab"><a href="#gene-table" aria-controls="gene-table" data-toggle="tab" id="genetab">Genes by Pathway</a></li>
+    <!--<li role="tab"><a href="#gene-table" aria-controls="gene-table" data-toggle="tab" id="genetab">Genes by Pathway</a></li>-->
   </ul>
 <br>
 
@@ -16,39 +16,22 @@
     <div role="tabpanel" class="tab-pane fade" id="about">
       <a href="https://apps.araport.org/thalemine/begin.do" target="_blank"><img src="https://s.gravatar.com/avatar/978e836a9d65238a784543ad932637cd.png" alt="Araport Logo"></a>
       <p id="app-description"><b>
-        This app displays a table of pathways in KEGG. The table can be expanded to show
-        additional information like a description or class of pathway. The pathways can be
-        filtered by a NCBI taxon id to show only the organism specific pathways in an
-        organism. A list of the genes in a specific pathway can also be shown.
+        This app displays a table of proteins in ThaleMine. The table can be expanded to show
+        additional information about the protein such as the primary identifier or the molecular weight.
       </b></p>
       <h4>How to use this app</h4>
       <p>
-        By default, the pathway table only shows pathways in Arabidopsis thaliana. However,
-        KEGG has pathway information on many other organisms. To show other pathways, uncheck the
-        "Show only Arabidopsis pathways" checkbox. This will then display KEGG's reference pathways,
-        which are not specific to any organism. Now, you can enter an NCBI taxon ID
-        (e.g. 3702 for <i>Arabidopsis thaliana</i>, 9606 for humans, 7227 for <i>Drosophila melanogaster</i>) and the pathways specific to that
-        organism will be displayed.
+        When the table loads, it shows a list of every protein in ThaleMine. The first column is the
+        protein identifier in the same format as the mRNA primary identifier in ThaleMine. The second column contains a button
+        that allows the user to show more information about the associated protein. Some proteins have multiple isoforms,
+        so some proteins have multiple information blocks where each block is a different isoform (e.g. AT1G22300.1 has 2 isoforms).
+        To show less information, just press the button again.
       </p>
       <p>
         You can search through the pathways using the search bar above the table on the right hand side.
-        You can also sort the table by clicking the table headers. In the table, you will see the KEGG ID of the
-        pathway, KEGG's name for the pathway with a button to expand information, and a button to show the pathway diagram. Clicking on the
-        expand button will display additional information about the pathway, including KEGG's description
-        of the pathway, and the class of pathways the pathway is in. There will also be another
-        button to show the genes in that pathway, unless the table is displaying KEGG refernce pathways
-        and the reference pathways have no associated gene information. This button will switch to the
-        "Genes by Pathway" tab of the app and the genes can be browsed there. The show pathway button
-        will create a popup with an image of KEGG's pathway diagram. Below the image is a link to the
-        interactive image on KEGG. When organism specific pathways are displayed, some boxes in the
-        pathway diagram will be green. This means that there is a specifc gene associated with the
-        enzyme.
-      </p>
-      <p>
-        On the Genes by Pathway tab, you can enter a taxon ID and a KEGG pathway ID and see the genes
-        in that pathway. The table can be sorted by gene locus ID, gene name, EC number, and the KEGG
-        Orthology ID. The table can also be searched using the search bar. If no taxon ID is given,
-        then the list will only contain KEGG orthology genes, which are not species specific.
+        You can also sort the table by clicking the table headers. Below the table on the right hand side are
+        all the pages that can be accessed. The number of proteins shown on each page can also be changed with
+        the dropdown menu on above the table on the left hand side.
       </p>
       <br><br><br><br><br><br><br><!--this forces the text to not be at the bottom of the page-->
     </div>
@@ -66,7 +49,7 @@
       <span id="protein-form-error" class="err-text" style="display: none;">Invalid protein identifier format.</span><br>-->
       <div class="data">Loading...</div>
     </div>
-    <!--search tab-->
+    <!--search tab
     <div role="tabpanel" class="tab-pane fade" id="gene-table">
       <form name="gene-form" class="form-inline">
         <div class="form-group">
@@ -87,7 +70,7 @@
         </div>
       </form>
       <div id="genes">Enter a taxon ID and a pathway ID.</div>
-    </div>
+    </div>-->
   </div>
 
 </div>
