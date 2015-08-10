@@ -5,6 +5,7 @@
   //var input = "3702";
   /* Generate Agave API docs */
   window.addEventListener("Agave::ready", function() {
+    console.log("ready");
     var Agave = window.Agave;
 
     /*var showResponse = function showResponse(response) {
@@ -23,15 +24,15 @@
       // Loops through every protein of the returned json
       for (var i = 0; i < json.obj.result.length; i++) {
         // Sets entry as the result
-        var entry = json.obj.result[i]["mRNA.primaryIdentifier"];
-        var entryName = json.obj.result[i].name;
+        var entry = json.obj.result[i].mRNA_Primary_Identifier;
+        var entryName = json.obj.result[i].Name;
         // adds the html for one row in the table
         //First column is just the protein identifier
         html += "<tr><td>" + entry + "</td><td>" + entryName + "</td>" +
           //Second column is a button to show more information about the protein
-          "<td><button type='button' class='btn btn-default btn-xs' id='more" + entry + "'>Show more information</button></td></tr>" +
+          "<td><button type='button' class='btn btn-default btn-xs' id='Protein-App_more" + entry + "'>Show more information</button></td></tr>" +
           // The div holds the area that will be expanded, and its id is the protein identifier
-          "<div id='" + entry + "' class='proteinInfo collapse' data-toggle='collapse'>Loading...</div>";
+          "<div id='Protein-App_" + entry + "' class='proteinInfo collapse' data-toggle='collapse'>Loading...</div>";
       }
       html += "</tbody></table>";
       $(".data", appContext).html(html);
@@ -40,10 +41,10 @@
       $(".btn", appContext).click(function() {
         // Gets the id of the button pressed (which is either "more" + proteinIdentifier or "less" + proteinIdentifier)
         var buttonId = $(this).attr("id");
-        var identifier = buttonId.substring(4);
+        var identifier = buttonId.substring(16);
         // Sets data as the current object so it can be used later when it is no longer the current object
-        var data = $("div[id='" + identifier + "']", appContext);
-        if ($(this).attr("id").substring(0,4) === "more") {
+        var data = $("div[id='Protein-App_" + identifier + "']", appContext);
+        if ($(this).attr("id").substring(12,16) === "more") {
           // This function is called to show the data received about a specific protein
           var showProteinInfo = function(json) {
             var html = "<br><ul class-'list-unstyled'>";
@@ -64,7 +65,7 @@
           // after Adama has retrieved the information. This is true for all functions referenced
           // in calls to Adama
 
-          var params = {Identifier: identifier, Output: "all"};
+          var params = {Identifier: identifier};
           Agave.api.adama.search(
             {namespace: "jk-dev", service: "protein_api_v0.1", queryParams: params},
             showProteinInfo,
@@ -72,14 +73,14 @@
           );
           // Sets the button that show protein info from expand to collapse
           $(this).html("Show less information");
-          $(this).attr("id", "less" + identifier);
+          $(this).attr("id", "Protein-App_less" + identifier);
           data.appendTo($(this).parent().prev());
           data.show(500);
         }
         else {
           // Sets the button that show protein info from collapse to expand
           $(this).html("Show more information");
-          $(this).attr("id", "more" + identifier);
+          $(this).attr("id", "Protein-App_more" + identifier);
           data.hide(500);
         }
       });
@@ -93,7 +94,7 @@
       // Creates an error alert on the page
       console.log(json);
       var html = "<div class='alert alert-danger' role='alert'>" + json.obj.message + "</div>";
-      $("#error", appContext).html(html);
+      $("#Protein-App_error", appContext).html(html);
     };
 
 

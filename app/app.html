@@ -1,21 +1,21 @@
 <div class="science-app" data-app-name="Protein-App" id="Protein-App-container">
   <h2>Protein Information Table</h2>
 
-  <div id="error"></div>
+  <div id="Protein-App_error"></div>
 
   <!--list of tabs in header-->
-  <ul id="tabs" class="nav nav-tabs" role="tablist">
-    <li role="tab"><a href="#about" aria-controls="about" data-toggle="tab">About</a></li>
-    <li role="tab" class="active"><a href="#pathway-table" aria-controls="pathway-table" data-toggle="tab">Information Table</a></li>
-    <!--<li role="tab"><a href="#gene-table" aria-controls="gene-table" data-toggle="tab" id="genetab">Genes by Pathway</a></li>-->
+  <ul id="Protein-App_tabs" class="nav nav-tabs" role="tablist">
+    <li role="tab"><a href="#Protein-App_about" aria-controls="about" data-toggle="tab">About</a></li>
+    <li role="tab" class="active"><a href="#Protein-App_protein-table" aria-controls="protein-table" data-toggle="tab">Information Table</a></li>
+    <!--<li role="tab"><a href="#gene-table" aria-controls="gene-table" data-toggle="tab" id="Protein-App_genetab">Genes by Pathway</a></li>-->
   </ul>
 <br>
 
   <div class="tab-content">
     <!--about tab-->
-    <div role="tabpanel" class="tab-pane fade" id="about">
+    <div role="tabpanel" class="tab-pane fade" id="Protein-App_about">
       <a href="https://apps.araport.org/thalemine/begin.do" target="_blank"><img src="https://s.gravatar.com/avatar/978e836a9d65238a784543ad932637cd.png" alt="Araport Logo"></a>
-      <p id="app-description"><b>
+      <p id="Protein-App_app-description"><b>
         This app displays a table of proteins in ThaleMine. The table can be expanded to show
         additional information about the protein such as the primary identifier or the molecular weight.
       </b></p>
@@ -28,7 +28,7 @@
         To show less information, just press the button again.
       </p>
       <p>
-        You can search through the pathways using the search bar above the table on the right hand side.
+        You can search through the proteins using the search bar above the table on the right hand side.
         You can also sort the table by clicking the table headers. Below the table on the right hand side are
         all the pages that can be accessed. The number of proteins shown on each page can also be changed with
         the dropdown menu on above the table on the left hand side.
@@ -36,7 +36,7 @@
       <br><br><br><br><br><br><br><!--this forces the text to not be at the bottom of the page-->
     </div>
     <!--table tab-->
-    <div role="tabpanel" class="tab-pane fade in active" id="pathway-table">
+    <div role="tabpanel" class="tab-pane fade in active" id="Protein-App_protein-table">
       <!--<form name="protein_form" class="form-inline">
         <br>
         <div class="form-group">
