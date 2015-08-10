@@ -2,7 +2,6 @@
   "use strict";
 
   var appContext = $("[data-app-name='Protein-App']");
-  //var input = "3702";
   /* Generate Agave API docs */
   window.addEventListener("Agave::ready", function() {
     console.log("ready");
@@ -67,7 +66,7 @@
 
           var params = {Identifier: identifier};
           Agave.api.adama.search(
-            {namespace: "jk-dev", service: "protein_api_v0.1", queryParams: params},
+            {namespace: "araport", service: "protein_api_v1.0", queryParams: params},
             showProteinInfo,
             showSearchError
           );
@@ -99,7 +98,7 @@
 
 
     Agave.api.adama.list(
-      {namespace: "jk-dev", service: "protein_api_v0.1"},
+      {namespace: "araport", service: "protein_api_v1.0"},
       showProteinList,
       showSearchError
     );

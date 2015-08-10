@@ -7,7 +7,6 @@
   <ul id="Protein-App_tabs" class="nav nav-tabs" role="tablist">
     <li role="tab"><a href="#Protein-App_about" aria-controls="about" data-toggle="tab">About</a></li>
     <li role="tab" class="active"><a href="#Protein-App_protein-table" aria-controls="protein-table" data-toggle="tab">Information Table</a></li>
-    <!--<li role="tab"><a href="#gene-table" aria-controls="gene-table" data-toggle="tab" id="Protein-App_genetab">Genes by Pathway</a></li>-->
   </ul>
 <br>
 
@@ -23,9 +22,8 @@
       <p>
         When the table loads, it shows a list of every protein in ThaleMine. The first column is the
         protein identifier in the same format as the mRNA primary identifier in ThaleMine. The second column contains a button
-        that allows the user to show more information about the associated protein. Some proteins have multiple isoforms,
-        so some proteins have multiple information blocks where each block is a different isoform (e.g. AT1G22300.1 has 2 isoforms).
-        To show less information, just press the button again.
+        that allows the user to show more information about the associated protein. To show less information, just press the button again.
+        Warning: there is an issue with the data where two proteins are incorrectly associated with the same mRNA primary identifier (e.g. AT2G46830.1).
       </p>
       <p>
         You can search through the proteins using the search bar above the table on the right hand side.
@@ -37,40 +35,8 @@
     </div>
     <!--table tab-->
     <div role="tabpanel" class="tab-pane fade in active" id="Protein-App_protein-table">
-      <!--<form name="protein_form" class="form-inline">
-        <br>
-        <div class="form-group">
-          <label for="protIdentifier">Protein Identifier (e.g. AT4G09000.1)</label>
-          <input type="text" class="form-control" id="protIdentifier" placeholder="">
-        </div>
-        <button type="submit" class="btn btn-success" id="submit">Submit</button>
-        <button type="button" class="btn btn-danger" id="reset" data-toggle="tooltip" data-placement="right" title="Resets to display the whole table of proteins">Reset</button>
-      </form>
-      <span id="protein-form-error" class="err-text" style="display: none;">Invalid protein identifier format.</span><br>-->
       <div class="data">Loading...</div>
     </div>
-    <!--search tab
-    <div role="tabpanel" class="tab-pane fade" id="gene-table">
-      <form name="gene-form" class="form-inline">
-        <div class="form-group">
-          <label for="gene-taxonId">NCBI Taxon ID (e.g. 3702)</label>
-          <input type="text" class="form-control" id="geneTaxonId" value="3702"><br>
-          <span id="gene-form-tax-error" class="err-text" style="display: none;">Invalid taxon ID format. Should only have numerals.</span><br>
-	       </div>
-         &nbsp;&nbsp;&nbsp;&nbsp;
-	        <div class ="form-group">
-          <label for="exampleInputName2"> KEGG Pathway ID (e.g.00010)</label>
-          <input type="text" class="form-control" id="pathwayId" value="00010"><br>
-          <span id="gene-form-path-error" class="err-text" style="display: none;"></span><br>
-        </div>
-        <div class="form-group">
-          <button type="submit" class="btn btn-success" id="submit-gene">Submit</button>
-          <button type="button" class="btn btn-danger" id="reset-gene" >Clear</button>
-          <br><br>
-        </div>
-      </form>
-      <div id="genes">Enter a taxon ID and a pathway ID.</div>
-    </div>-->
   </div>
 
 </div>
