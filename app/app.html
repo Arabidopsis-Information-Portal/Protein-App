@@ -1,43 +1,57 @@
-<div class="science-app" data-app-name="Protein-App" id="Protein-App-container">
-  <h2>Protein Information Table</h2>
+<div class="science-app" data-app-name="protein-app">
 
-  <div id="Protein-App_error"></div>
+    <span class="embed_mode_elem_hide">
+        <h3>Enter a protein identifier to search ThaleMine</h3>
+        <p>Protein ID (e.g. FT_ARATH):</p>
+        <form id="proteinSearch" class="form-inline">
+            <label for="protein_id" class="sr-only">Protein ID:</label>
+            <input type="text" name="protein_id" id="protein_id" value="FT_ARATH" class="form-control" placeholder="e.g. FT_ARATH">
+            <button type="submit" id="searchButton" class="btn btn-success">Search</button>
+            <button type="button" id="clearButton" class="btn btn-danger">Clear</button>
+        </form>
+    <br>
+    </span>
 
-  <!--list of tabs in header-->
-  <ul id="Protein-App_tabs" class="nav nav-tabs" role="tablist">
-    <li role="tab"><a href="#Protein-App_about" aria-controls="about" data-toggle="tab">About</a></li>
-    <li role="tab" class="active"><a href="#Protein-App_protein-table" aria-controls="protein-table" data-toggle="tab">Information Table</a></li>
-  </ul>
-<br>
-
-  <div class="tab-content">
-    <!--about tab-->
-    <div role="tabpanel" class="tab-pane fade" id="Protein-App_about">
-      <a href="https://apps.araport.org/thalemine/begin.do" target="_blank"><img src="https://s.gravatar.com/avatar/978e836a9d65238a784543ad932637cd.png" alt="Araport Logo"></a>
-      <p id="Protein-App_app-description"><b>
-        This app displays a table of proteins in ThaleMine. The table can be expanded to show
-        additional information about the protein such as the primary identifier or the molecular weight.
-      </b></p>
-      <h4>How to use this app</h4>
-      <p>
-        When the table loads, it shows a list of every protein in ThaleMine. The first column is the
-        protein identifier in the same format as the mRNA primary identifier in ThaleMine. The second column contains a button
-        that allows the user to show more information about the associated protein. To show less information, just press the button again.
-        Warning: there is an issue with the data where two proteins are incorrectly associated with the same mRNA primary identifier (e.g. AT2G46830.1).
-      </p>
-      <p>
-        You can search through the proteins using the search bar above the table on the right hand side.
-        You can also sort the table by clicking the table headers. Below the table on the right hand side are
-        all the pages that can be accessed. The number of proteins shown on each page can also be changed with
-        the dropdown menu on above the table on the left hand side.
-      </p>
-      <br><br><br><br><br><br><br><!--this forces the text to not be at the bottom of the page-->
+    <div id="error"></div>
+    <div id="progress_region" class="hidden">
+        <h4>Searching...</h4>
+        <div class="progress progress-striped active">
+            <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                <span class="sr-only">Loading Data</span>
+            </div>
+        </div>
     </div>
-    <!--table tab-->
-    <div role="tabpanel" class="tab-pane fade in active" id="Protein-App_protein-table">
-      <div class="data">Loading...</div>
-    </div>
-  </div>
 
-</div>
+    <br>
+
+    <!-- Navigation tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li id="about-tab" class="active embed_mode_elem_hide"><a href="#about" aria-controls="about" role="tab" data-toggle="tab">About</a></li>
+        <li id="summary-tab"><a href="#protein_summary" aria-controls="summary" role="tab" data-toggle="tab">Summary <span id="summary_ident" class="badge"></span></a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade in active" id="about">
+            About
+        </div>
+
+        <!-- Data tables -->
+        <div role="tabpanel" class="tab-pane fade" id="protein_summary">
+            <div id="protein_summary_results" class="results-panel">
+                <h4>Please search for a gene.</h4>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <p>
+                Data &amp; web services provided by
+                <a href="http://apps.araport.org/thalemine" target="_blank">ThaleMine <i class="fa fa-external-link"></i></a>.
+            </p>
+        </div>
+    </div>
 </div>

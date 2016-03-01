@@ -1,16 +1,23 @@
-#Protein-App-container img {
-  max-width:100%;
-  max-height:100%;
+h4 {
+  line-height: 130%;
 }
 
-#Protein-App-container p {
-  text-indent: 30px;
+.row-header {
+    background-color: lightgray;
+    text-align: right;
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
-#Protein-App-container .err-text {
-  color: red;
+.results-panel {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
 }
 
-#app-description {
-  font-size: 18px;
+.cell-expand {
+    white-space: nowrap;
+}
+
+.button-row {
+    float: right;
 }

@@ -1,107 +1,122 @@
-(function(window, $, undefined) {
-  "use strict";
+/* global _ */
+/* global moment */
+/* jshint camelcase: false */
+(function(window, $, _, moment, undefined) {
+    'use strict';
+    var appContext = $('[data-app-name="protein-app"]');
 
-  var appContext = $("[data-app-name='Protein-App']");
-  /* Generate Agave API docs */
-  window.addEventListener("Agave::ready", function() {
-    console.log("ready");
-    var Agave = window.Agave;
+    // Only runs once Agave is ready
+    window.addEventListener('Agave::ready', function() {
+        var Agave = window.Agave;
 
-    /*var showResponse = function showResponse(response) {
-      var data = response.obj || response;
-      $(".response", appContext ).html("<pre><code>" + JSON.stringify(data, null, 2) + "</code></pre>");
-    };*/
+        var templates = {
+            summaryTable: _.template('<table class="table table-bordered">' +
+                                     '<thead></thead><tbody>' +
+                                     '<tr><th class="row-header">Protein ID</th><td><%= protein_id %></td></tr>' +
+                                     '<tr><th class="row-header">Name</th><td><%= name %></td></tr>' +
+                                     '<tr><th class="row-header">Source</th><td><%= source %></td></tr>' +
+                                     '<tr><th class="row-header">Length</th><td><%= length %></td></tr>' +
+                                     '<tr><th class="row-header">Molecular Weight</th><td><%= molecular_weight %></td></tr>' +
+                                     '<tr><th class="row-header">UniProt Accession</th><td><%= uniprot_accession %></td></tr>' +
+                                     '<tr><th class="row-header">UniProt Name</th><td><%= uniprot_name %></td></tr>' +
+                                     '<tr><th class="row-header">Is UniProt Canonical?</th><td><%= is_uniprot_canonical %></td></tr>' +
+                                     '<tr><th class="row-header">Is Fragment?</th><td><%= is_fragment %></td></tr>' +
+                                     '<tr><th class="row-header">Primary Accession</th><td><%= primary_accession %></td></tr>' +
+                                     '<tr><th class="row-header">Secondary Identifier</th><td><%= secondary_identifier %></td></tr>' +
+                                     '<tr><th class="row-header">Synonyms</th><td>' +
+                                     '<%= s.join(", ", synonyms) %>' +
+                                     '</td></tr>' +
+                                     '<tr><th class="row-header">Keywords</th><td>' +
+                                     '<%= s.join(", ", keywords) %>' +
+                                     '</td></tr>' +
+                                     '</tbody></table>')
+        };
 
-    //shows a table of all proteins
-    var showProteinList = function(json) {
-      // Creates a string of html to place into the document
-      // This starts off the html for the table, with headers and classes that will
-      // work with Datatables
-      var html =
-      "<table class='table table-striped' width='100%'>"+
-          "<thead><tr><th>Protein Identifier</th><th>Protein Name</th><th>More Information</th></tr></thead><tbody>";
-      // Loops through every protein of the returned json
-      for (var i = 0; i < json.obj.result.length; i++) {
-        // Sets entry as the result
-        var entry = json.obj.result[i].mRNA_Primary_Identifier;
-        var entryName = json.obj.result[i].Name;
-        // adds the html for one row in the table
-        //First column is just the protein identifier
-        html += "<tr><td>" + entry + "</td><td>" + entryName + "</td>" +
-          //Second column is a button to show more information about the protein
-          "<td><button type='button' class='btn btn-default btn-xs' id='Protein-App_more" + entry + "'>Show more information</button></td></tr>" +
-          // The div holds the area that will be expanded, and its id is the protein identifier
-          "<div id='Protein-App_" + entry + "' class='proteinInfo collapse' data-toggle='collapse'>Loading...</div>";
-      }
-      html += "</tbody></table>";
-      $(".data", appContext).html(html);
+        var errorMessage = function errorMessage(message) {
+            return '<div class="alert alert-danger fade in" role="alert">' +
+                   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
+                   '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span> ' +
+                   message + '</div>';
+        };
 
-      // This is called whenever one of the buttons is pressed
-      $(".btn", appContext).click(function() {
-        // Gets the id of the button pressed (which is either "more" + proteinIdentifier or "less" + proteinIdentifier)
-        var buttonId = $(this).attr("id");
-        var identifier = buttonId.substring(16);
-        // Sets data as the current object so it can be used later when it is no longer the current object
-        var data = $("div[id='Protein-App_" + identifier + "']", appContext);
-        if ($(this).attr("id").substring(12,16) === "more") {
-          // This function is called to show the data received about a specific protein
-          var showProteinInfo = function(json) {
-            var html = "<br><ul class-'list-unstyled'>";
-            var results = json.obj.result;
-            for (var proteinCounter = 0; proteinCounter < results.length; proteinCounter++) {
-              var protein = results[proteinCounter];
-              for (var property in protein) {
-                html += "<li><b>" + property + "</b>: " + protein[property] + "</li>\n";
-              }
-              html += "<br>";
+        var warningMessage = function warningMessage(message) {
+            return '<div class="alert alert-warning fade in" role="alert">' +
+                   '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' +
+                   '<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning:</span> ' +
+                   message + '</div>';
+        };
+
+        // Displays an error message if the API returns an error
+        var showErrorMessage = function showErrorMessage(response) {
+            // clear progress bar and spinners
+            $('#progress_region', appContext).addClass('hidden');
+            $('#summary_ident', appContext).empty();
+            console.error('Status: ' + response.obj.status + ' Message: ' + response.obj.message);
+            $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
+        };
+
+        var showSummaryTable = function showSummaryTable(json) {
+            $('#progress_region', appContext).addClass('hidden');
+            $('#summary_ident', appContext).empty();
+            if ( ! (json && json.obj) || json.obj.status !== 'success') {
+                $('#error', appContext).html(errorMessage('Invalid response from server!'));
+                return;
             }
-            html += "</ul>";
-            data.html(html);
-          };
 
-          // We just finished the function that handles displaying the return info
-          // from Adama if protein info is requested. The function will only be called
-          // after Adama has retrieved the information. This is true for all functions referenced
-          // in calls to Adama
+            $('a[href="#protein_summary"]', appContext).tab('show');
 
-          var params = {Identifier: identifier};
-          Agave.api.adama.search(
-            {namespace: "araport", service: "protein_api_v1.0", queryParams: params},
-            showProteinInfo,
-            showSearchError
-          );
-          // Sets the button that show protein info from expand to collapse
-          $(this).html("Show less information");
-          $(this).attr("id", "Protein-App_less" + identifier);
-          data.appendTo($(this).parent().prev());
-          data.show(500);
-        }
-        else {
-          // Sets the button that show protein info from collapse to expand
-          $(this).html("Show more information");
-          $(this).attr("id", "Protein-App_more" + identifier);
-          data.hide(500);
-        }
-      });
-      $(".data table", appContext).dataTable({"columnDefs": [{"targets": 2, "orderable": false, "searchable": false}]});
-    };
+            if (json.obj.result[0]) {
+                $('#protein_summary_results', appContext).html(templates.summaryTable(json.obj.result[0]));
+            } else {
+                $('#protein_summary_results', appContext).html('');
+                var search_ident = $('#protein_id', appContext).val();
+                $('#error', appContext).html(warningMessage('No results found for protein identifier \'' + search_ident + '\'. Please try again.'));
+            }
 
-    // This displays an error when Adama fails
-    var showSearchError = function(json) {
-      // Displays the error on the Javascript console
-      console.error("Search returned error! Status=" + json.obj.status + " Message=" + json.obj.message);
-      // Creates an error alert on the page
-      console.log(json);
-      var html = "<div class='alert alert-danger' role='alert'>" + json.obj.message + "</div>";
-      $("#Protein-App_error", appContext).html(html);
-    };
+            $('#summary_ident', appContext).html(' ' + json.obj.result[0].protein_id);
+        };
+
+        // controls the clear button
+        $('#clearButton', appContext).on('click', function () {
+            // clear the gene field
+            $('#protein_id', appContext).val('');
+            // clear the error section
+            $('#error', appContext).empty();
+            // clear the number of result rows from the tabs
+            $('#progress_region', appContext).addClass('hidden');
+            $('#summary_ident', appContext).empty();
+            // clear the tables
+            $('#protein_summary_results', appContext).html('<h4>Please search for a protein.</h4>');
+            // select the about tab
+            $('a[href="#about"]', appContext).tab('show');
+        });
 
 
-    Agave.api.adama.list(
-      {namespace: "araport", service: "protein_api_v1.0"},
-      showProteinList,
-      showSearchError
-    );
-  });
+        // search form
+        $('#proteinSearch', appContext).submit(function(event) {
+            event.preventDefault();
 
-})(window, jQuery);
+            // Reset error div
+            $('#error', appContext).empty();
+
+            // Inserts loading text, will be replaced by table
+            $('#protein_summary_results', appContext).html('<h4>Loading summary information...</h4>');
+
+            // start progress bar and tab spinners
+            $('#progress_region', appContext).removeClass('hidden');
+            $('#summary_ident', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
+
+            var params = {
+                identifier: this.protein_id.value,
+                source: 'UniProt'
+            };
+
+            // Calls ADAMA adapter to retrieve gene summary data
+            Agave.api.adama.search({
+                'namespace': 'araport',
+                'service': 'protein_summary_by_identifier_v0.1',
+                'queryParams': params
+            }, showSummaryTable, showErrorMessage);
+        });
+    });
+})(window, jQuery, _, moment);
