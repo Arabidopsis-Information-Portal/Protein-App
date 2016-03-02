@@ -74,6 +74,31 @@
                                      '</tr>' +
                                      '<% }) %>' +
                                      '</tbody></table>'),
+            publicationTable: _.template('<table class="table table-bordered table-striped">' +
+                                         '<thead><tr>' +
+                                         '<th>Author</th>' +
+                                         '<th>Date</th>' +
+                                         '<th>Title</th>' +
+                                         '<th>Journal</th>' +
+                                         '<th>Issue</th>' +
+                                         '<th>Volume</th>' +
+                                         '<th>Pages</th>' +
+                                         '<th>PubMed Id</th>' +
+                                         '</tr></thead><tbody>' +
+                                         '<% _.each(result, function(r) { %>' +
+                                         '<tr>' +
+                                         '<td><%= r.first_author %></td>' +
+                                         '<td><%= r.year %></td>' +
+                                         '<td><%= r.title %></td>' +
+                                         '<td><%= r.journal %></td>' +
+                                         '<td><%= r.issue %></td>' +
+                                         '<td><%= r.volume %></td>' +
+                                         '<td><%= r.pages %></td>' +
+                                         '<td><a href="http://www.ncbi.nlm.nih.gov/pubmed/<%= r.pubmed_id %>" target="_blank"><span class="cell-expand"><%= r.pubmed_id %> <i class="fa fa-external-link"></i></a></td>' +
+                                         '</tr>' +
+                                         '<% }) %>' +
+                                         '</tbody>' +
+                                         '</table>')
         };
 
         var errorMessage = function errorMessage(message) {
@@ -98,6 +123,7 @@
             $('#comments_num_rows', appContext).empty();
             $('#features_num_rows', appContext).empty();
             $('#regions_num_rows', appContext).empty();
+            $('#pub_num_rows', appContext).empty();
             console.error('Status: ' + response.obj.status + ' Message: ' + response.obj.message);
             $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
         };
@@ -209,6 +235,35 @@
             $('#regions_num_rows', appContext).html(' ' + regionsTable.data().length);
         };
 
+        var showPublicationTable = function showPublicationTable(json) {
+            $('#pub_num_rows', appContext).empty();
+            if ( ! (json && json.obj) || json.obj.status !== 'success') {
+                $('#error', appContext).html(errorMessage('Invalid response from server!'));
+                return;
+            }
+
+            var filename = 'Publications_for_';
+            if (json.obj.result[0]) {
+                filename += json.obj.result[0].protein_id;
+            } else {
+                filename += $('#protein_id', appContext).val();
+            }
+            $('#protein_pub_results', appContext).html(templates.publicationTable(json.obj));
+            var pubTable = $('#protein_pub_results table', appContext).DataTable( {'lengthMenu': [10, 25, 50, 100],
+                                                                                'language': {
+                                                                                    'emptyTable': 'No Publication data available for this protein id.'
+                                                                                },
+                                                                                'buttons': [{'extend': 'csv', 'title': filename},
+                                                                                            {'extend': 'excel', 'title': filename},
+                                                                                            'colvis'],
+                                                                                'order' : [[ 1, 'desc' ]],
+                                                                                'colReorder': true,
+                                                                                'dom': '<"row"<"col-sm-6"l><"col-sm-6"f<"button-row"B>>><"row"<"col-sm-12"tr>><"row"<"col-sm-5"i><"col-sm-7"p>>'
+                                                                               } );
+
+            $('#pub_num_rows', appContext).html(' ' + pubTable.data().length);
+        };
+
         // controls the clear button
         $('#clearButton', appContext).on('click', function () {
             // clear the gene field
@@ -221,11 +276,13 @@
             $('#comments_num_rows', appContext).empty();
             $('#features_num_rows', appContext).empty();
             $('#regions_num_rows', appContext).empty();
+            $('#pub_num_rows', appContext).empty();
             // clear the tables
             $('#protein_summary_results', appContext).html('<h4>Please search for a protein.</h4>');
             $('#protein_comments_results', appContext).html('<h4>Please search for a protein.</h4>');
             $('#protein_features_results', appContext).html('<h4>Please search for a protein.</h4>');
             $('#protein_domain_regions_results', appContext).html('<h4>Please search for a protein.</h4>');
+            $('#protein_pub_results', appContext).html('<h4>Please search for a protein.</h4>');
             // select the about tab
             $('a[href="#about"]', appContext).tab('show');
         });
@@ -243,6 +300,7 @@
             $('#protein_comments_results', appContext).html('<h4>Loading comments...</h4>');
             $('#protein_features_results', appContext).html('<h4>Loading features...</h4>');
             $('#protein_domain_regions_results', appContext).html('<h4>Loading protein domain regions...</h4>');
+            $('#protein_pub_results', appContext).html('<h4>Loading protein domain regions...</h4>');
 
             // start progress bar and tab spinners
             $('#progress_region', appContext).removeClass('hidden');
@@ -250,6 +308,7 @@
             $('#comments_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#features_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#regions_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
+            $('#pub_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
 
             var params = {
                 identifier: this.protein_id.value,
@@ -283,6 +342,13 @@
                 'service': 'protein_domain_regions_by_identifier_v0.1',
                 'queryParams': params
             }, showRegionsTable, showErrorMessage);
+
+            // Calls ADAMA adapter to retrieve protein publications
+            Agave.api.adama.search({
+                'namespace': 'araport',
+                'service': 'publications_by_protein_identifier_v0.1',
+                'queryParams': params
+            }, showPublicationTable, showErrorMessage);
         });
     });
 })(window, jQuery, _, moment);
