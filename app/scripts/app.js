@@ -57,7 +57,23 @@
                                       '<td><%= r.feature_description %></td>' +
                                       '</tr>' +
                                       '<% }) %>' +
-                                      '</tbody></table>')
+                                      '</tbody></table>'),
+            regionsTable: _.template('<table class="table table-bordered table-striped">' +
+                                     '<thead><tr>' +
+                                     '<th>Identifier</th>' +
+                                     '<th>Start</th>' +
+                                     '<th>End</th>' +
+                                     '<th>Database</th>' +
+                                     '</tr></thead><tbody>' +
+                                     '<% _.each(result, function(r) { %>' +
+                                     '<tr>' +
+                                     '<td><%= r.protein_domain_region_id %></td>' +
+                                     '<td><%= r.protein_domain_region_start %></td>' +
+                                     '<td><%= r.protein_domain_region_end %></td>' +
+                                     '<td><%= r.protein_domain_region_db %></td>' +
+                                     '</tr>' +
+                                     '<% }) %>' +
+                                     '</tbody></table>'),
         };
 
         var errorMessage = function errorMessage(message) {
@@ -81,6 +97,7 @@
             $('#summary_ident', appContext).empty();
             $('#comments_num_rows', appContext).empty();
             $('#features_num_rows', appContext).empty();
+            $('#regions_num_rows', appContext).empty();
             console.error('Status: ' + response.obj.status + ' Message: ' + response.obj.message);
             $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
         };
@@ -163,6 +180,35 @@
             $('#features_num_rows', appContext).html(' ' + featureTable.data().length);
         };
 
+        var showRegionsTable = function showRegionsTable(json) {
+            $('#regions_num_rows', appContext).empty();
+            if ( ! (json && json.obj) || json.obj.status !== 'success') {
+                $('#error', appContext).html(errorMessage('Invalid response from server!'));
+                return;
+            }
+
+            var filename = 'Protein_Domain_Regions_for_';
+            if (json.obj.result[0]) {
+                filename += json.obj.result[0].protein_id;
+            } else {
+                filename += $('#protein_id', appContext).val();
+            }
+            $('#protein_domain_regions_results', appContext).html(templates.regionsTable(json.obj));
+            var regionsTable = $('#protein_domain_regions_results table', appContext).DataTable( {'lengthMenu': [10, 25, 50, 100],
+                                                                                         'language': {
+                                                                                             'emptyTable': 'No protein domain regions available for this protein id.'
+                                                                                         },
+                                                                                         'buttons': [{'extend': 'csv', 'title': filename},
+                                                                                                     {'extend': 'excel', 'title': filename},
+                                                                                                     'colvis'],
+                                                                                         'order' : [[ 1, 'asc' ]],
+                                                                                         'colReorder': true,
+                                                                                         'dom': '<"row"<"col-sm-6"l><"col-sm-6"f<"button-row"B>>><"row"<"col-sm-12"tr>><"row"<"col-sm-5"i><"col-sm-7"p>>'
+                                                                                        } );
+
+            $('#regions_num_rows', appContext).html(' ' + regionsTable.data().length);
+        };
+
         // controls the clear button
         $('#clearButton', appContext).on('click', function () {
             // clear the gene field
@@ -174,10 +220,12 @@
             $('#summary_ident', appContext).empty();
             $('#comments_num_rows', appContext).empty();
             $('#features_num_rows', appContext).empty();
+            $('#regions_num_rows', appContext).empty();
             // clear the tables
             $('#protein_summary_results', appContext).html('<h4>Please search for a protein.</h4>');
             $('#protein_comments_results', appContext).html('<h4>Please search for a protein.</h4>');
             $('#protein_features_results', appContext).html('<h4>Please search for a protein.</h4>');
+            $('#protein_domain_regions_results', appContext).html('<h4>Please search for a protein.</h4>');
             // select the about tab
             $('a[href="#about"]', appContext).tab('show');
         });
@@ -194,12 +242,14 @@
             $('#protein_summary_results', appContext).html('<h4>Loading summary information...</h4>');
             $('#protein_comments_results', appContext).html('<h4>Loading comments...</h4>');
             $('#protein_features_results', appContext).html('<h4>Loading features...</h4>');
+            $('#protein_domain_regions_results', appContext).html('<h4>Loading protein domain regions...</h4>');
 
             // start progress bar and tab spinners
             $('#progress_region', appContext).removeClass('hidden');
             $('#summary_ident', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#comments_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#features_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
+            $('#regions_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
 
             var params = {
                 identifier: this.protein_id.value,
@@ -226,6 +276,13 @@
                 'service': 'protein_features_by_identifier_v0.1',
                 'queryParams': params
             }, showFeaturesTable, showErrorMessage);
+
+            // Calls ADAMA adapter to retrieve protein domain regions
+            Agave.api.adama.search({
+                'namespace': 'araport',
+                'service': 'protein_domain_regions_by_identifier_v0.1',
+                'queryParams': params
+            }, showRegionsTable, showErrorMessage);
         });
     });
 })(window, jQuery, _, moment);
