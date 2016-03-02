@@ -29,7 +29,19 @@
                                      '<tr><th class="row-header">Keywords</th><td>' +
                                      '<%= s.join(", ", keywords) %>' +
                                      '</td></tr>' +
-                                     '</tbody></table>')
+                                     '</tbody></table>'),
+            commentsTable: _.template('<table class="table table-bordered table-striped">' +
+                                      '<thead><tr>' +
+                                      '<th>Type</th>' +
+                                      '<th>Description</th>' +
+                                      '</tr></thead><tbody>' +
+                                      '<% _.each(result, function(r) { %>' +
+                                      '<tr>' +
+                                      '<td><%= r.comment_type %></td>' +
+                                      '<td><%= r.comment_description %></td>' +
+                                      '</tr>' +
+                                      '<% }) %>' +
+                                      '</tbody></table>')
         };
 
         var errorMessage = function errorMessage(message) {
@@ -51,6 +63,7 @@
             // clear progress bar and spinners
             $('#progress_region', appContext).addClass('hidden');
             $('#summary_ident', appContext).empty();
+            $('#comments_num_rows', appContext).empty();
             console.error('Status: ' + response.obj.status + ' Message: ' + response.obj.message);
             $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
         };
@@ -76,6 +89,34 @@
             $('#summary_ident', appContext).html(' ' + json.obj.result[0].protein_id);
         };
 
+        var showCommentsTable = function showCommentsTable(json) {
+            $('#comments_num_rows', appContext).empty();
+            if ( ! (json && json.obj) || json.obj.status !== 'success') {
+                $('#error', appContext).html(errorMessage('Invalid response from server!'));
+                return;
+            }
+
+            var filename = 'Comments_for_';
+            if (json.obj.result[0]) {
+                filename += json.obj.result[0].protein_id;
+            } else {
+                filename += $('#protein_id', appContext).val();
+            }
+            $('#protein_comments_results', appContext).html(templates.commentsTable(json.obj));
+            var commentsTable = $('#protein_comments_results table', appContext).DataTable( {'lengthMenu': [10, 25, 50, 100],
+                                                                                         'language': {
+                                                                                             'emptyTable': 'No comments data available for this protein id.'
+                                                                                         },
+                                                                                         'buttons': [{'extend': 'csv', 'title': filename},
+                                                                                                     {'extend': 'excel', 'title': filename},
+                                                                                                     'colvis'],
+                                                                                         'colReorder': true,
+                                                                                         'dom': '<"row"<"col-sm-6"l><"col-sm-6"f<"button-row"B>>><"row"<"col-sm-12"tr>><"row"<"col-sm-5"i><"col-sm-7"p>>'
+                                                                                        } );
+
+            $('#comments_num_rows', appContext).html(' ' + commentsTable.data().length);
+        };
+
         // controls the clear button
         $('#clearButton', appContext).on('click', function () {
             // clear the gene field
@@ -85,8 +126,10 @@
             // clear the number of result rows from the tabs
             $('#progress_region', appContext).addClass('hidden');
             $('#summary_ident', appContext).empty();
+            $('#comments_num_rows', appContext).empty();
             // clear the tables
             $('#protein_summary_results', appContext).html('<h4>Please search for a protein.</h4>');
+            $('#protein_comments_results', appContext).html('<h4>Please search for a protein.</h4>');
             // select the about tab
             $('a[href="#about"]', appContext).tab('show');
         });
@@ -101,22 +144,31 @@
 
             // Inserts loading text, will be replaced by table
             $('#protein_summary_results', appContext).html('<h4>Loading summary information...</h4>');
+            $('#protein_comments_results', appContext).html('<h4>Loading comments...</h4>');
 
             // start progress bar and tab spinners
             $('#progress_region', appContext).removeClass('hidden');
             $('#summary_ident', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
+            $('#comments_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
 
             var params = {
                 identifier: this.protein_id.value,
                 source: 'UniProt'
             };
 
-            // Calls ADAMA adapter to retrieve gene summary data
+            // Calls ADAMA adapter to retrieve protein summary data
             Agave.api.adama.search({
                 'namespace': 'araport',
                 'service': 'protein_summary_by_identifier_v0.1',
                 'queryParams': params
             }, showSummaryTable, showErrorMessage);
+
+            // Calls ADAMA adapter to retrieve protein summary data
+            Agave.api.adama.search({
+                'namespace': 'araport',
+                'service': 'curated_comments_by_protein_identifier_v0.1',
+                'queryParams': params
+            }, showCommentsTable, showErrorMessage);
         });
     });
 })(window, jQuery, _, moment);
