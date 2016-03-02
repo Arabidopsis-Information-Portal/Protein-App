@@ -41,6 +41,22 @@
                                       '<td><%= r.comment_description %></td>' +
                                       '</tr>' +
                                       '<% }) %>' +
+                                      '</tbody></table>'),
+            featuresTable: _.template('<table class="table table-bordered table-striped">' +
+                                      '<thead><tr>' +
+                                      '<th>Type</th>' +
+                                      '<th>Start</th>' +
+                                      '<th>End</th>' +
+                                      '<th>Description</th>' +
+                                      '</tr></thead><tbody>' +
+                                      '<% _.each(result, function(r) { %>' +
+                                      '<tr>' +
+                                      '<td><%= r.feature_type %></td>' +
+                                      '<td><%= r.feature_start %></td>' +
+                                      '<td><%= r.feature_end %></td>' +
+                                      '<td><%= r.feature_description %></td>' +
+                                      '</tr>' +
+                                      '<% }) %>' +
                                       '</tbody></table>')
         };
 
@@ -64,6 +80,7 @@
             $('#progress_region', appContext).addClass('hidden');
             $('#summary_ident', appContext).empty();
             $('#comments_num_rows', appContext).empty();
+            $('#features_num_rows', appContext).empty();
             console.error('Status: ' + response.obj.status + ' Message: ' + response.obj.message);
             $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
         };
@@ -117,6 +134,35 @@
             $('#comments_num_rows', appContext).html(' ' + commentsTable.data().length);
         };
 
+        var showFeaturesTable = function showFeaturesTable(json) {
+            $('#features_num_rows', appContext).empty();
+            if ( ! (json && json.obj) || json.obj.status !== 'success') {
+                $('#error', appContext).html(errorMessage('Invalid response from server!'));
+                return;
+            }
+
+            var filename = 'Features_for_';
+            if (json.obj.result[0]) {
+                filename += json.obj.result[0].protein_id;
+            } else {
+                filename += $('#protein_id', appContext).val();
+            }
+            $('#protein_features_results', appContext).html(templates.featuresTable(json.obj));
+            var featureTable = $('#protein_features_results table', appContext).DataTable( {'lengthMenu': [10, 25, 50, 100],
+                                                                                         'language': {
+                                                                                             'emptyTable': 'No feature data available for this protein id.'
+                                                                                         },
+                                                                                         'buttons': [{'extend': 'csv', 'title': filename},
+                                                                                                     {'extend': 'excel', 'title': filename},
+                                                                                                     'colvis'],
+                                                                                         'order' : [[ 1, 'asc' ]],
+                                                                                         'colReorder': true,
+                                                                                         'dom': '<"row"<"col-sm-6"l><"col-sm-6"f<"button-row"B>>><"row"<"col-sm-12"tr>><"row"<"col-sm-5"i><"col-sm-7"p>>'
+                                                                                        } );
+
+            $('#features_num_rows', appContext).html(' ' + featureTable.data().length);
+        };
+
         // controls the clear button
         $('#clearButton', appContext).on('click', function () {
             // clear the gene field
@@ -127,9 +173,11 @@
             $('#progress_region', appContext).addClass('hidden');
             $('#summary_ident', appContext).empty();
             $('#comments_num_rows', appContext).empty();
+            $('#features_num_rows', appContext).empty();
             // clear the tables
             $('#protein_summary_results', appContext).html('<h4>Please search for a protein.</h4>');
             $('#protein_comments_results', appContext).html('<h4>Please search for a protein.</h4>');
+            $('#protein_features_results', appContext).html('<h4>Please search for a protein.</h4>');
             // select the about tab
             $('a[href="#about"]', appContext).tab('show');
         });
@@ -145,11 +193,13 @@
             // Inserts loading text, will be replaced by table
             $('#protein_summary_results', appContext).html('<h4>Loading summary information...</h4>');
             $('#protein_comments_results', appContext).html('<h4>Loading comments...</h4>');
+            $('#protein_features_results', appContext).html('<h4>Loading features...</h4>');
 
             // start progress bar and tab spinners
             $('#progress_region', appContext).removeClass('hidden');
             $('#summary_ident', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#comments_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
+            $('#features_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
 
             var params = {
                 identifier: this.protein_id.value,
@@ -163,12 +213,19 @@
                 'queryParams': params
             }, showSummaryTable, showErrorMessage);
 
-            // Calls ADAMA adapter to retrieve protein summary data
+            // Calls ADAMA adapter to retrieve protein curated comments
             Agave.api.adama.search({
                 'namespace': 'araport',
                 'service': 'curated_comments_by_protein_identifier_v0.1',
                 'queryParams': params
             }, showCommentsTable, showErrorMessage);
+
+            // Calls ADAMA adapter to retrieve protein features
+            Agave.api.adama.search({
+                'namespace': 'araport',
+                'service': 'protein_features_by_identifier_v0.1',
+                'queryParams': params
+            }, showFeaturesTable, showErrorMessage);
         });
     });
 })(window, jQuery, _, moment);
