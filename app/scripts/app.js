@@ -268,6 +268,7 @@
         $('#clearButton', appContext).on('click', function () {
             // clear the gene field
             $('#protein_id', appContext).val('');
+            $('#datasource1', appContext).prop('checked', true);
             // clear the error section
             $('#error', appContext).empty();
             // clear the number of result rows from the tabs
@@ -310,9 +311,11 @@
             $('#regions_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#pub_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
 
+            var source = $('input[name=datasource]:checked').val();
+
             var params = {
                 identifier: this.protein_id.value,
-                source: 'UniProt'
+                source: source
             };
 
             // Calls ADAMA adapter to retrieve protein summary data

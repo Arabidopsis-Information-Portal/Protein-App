@@ -1,16 +1,28 @@
 <div class="science-app" data-app-name="protein-app">
 
-    <span class="embed_mode_elem_hide">
-        <h3>Enter a protein identifier to search ThaleMine</h3>
-        <p>Protein ID (e.g. FT_ARATH):</p>
-        <form id="proteinSearch" class="form-inline">
-            <label for="protein_id" class="sr-only">Protein ID:</label>
-            <input type="text" name="protein_id" id="protein_id" value="FT_ARATH" class="form-control" placeholder="e.g. FT_ARATH">
-            <button type="submit" id="searchButton" class="btn btn-success">Search</button>
-            <button type="button" id="clearButton" class="btn btn-danger">Clear</button>
+    <h3>Enter a protein identifier to search ThaleMine</h3>
+    <div class="row">
+        <form id="proteinSearch" class="col-sm-4">
+            <div class="form-group">
+                <label for="protein_id">Protein ID (e.g. FT_ARATH, AT1G65480.1)</label>
+                <input type="text" name="protein_id" id="protein_id" value="FT_ARATH" class="form-control" placeholder="e.g. FT_ARATH">
+            </div>
+            <div class="form-group">
+                <div class="radio">
+                    <label><input type="radio" name="datasource" id="datasource1" value="UniProt" checked>UniProt</label>
+                </div>
+                <div class="radio">
+                    <label><input type="radio" name="datasource" id="datasource2" value="Araport">Araport</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" id="searchButton" class="btn btn-success">Search</button>
+                <button type="button" id="clearButton" class="btn btn-danger">Clear</button>
+            </div>
         </form>
+    </div>
+
     <br>
-    </span>
 
     <div id="error"></div>
     <div id="progress_region" class="hidden">
@@ -26,7 +38,7 @@
 
     <!-- Navigation tabs -->
     <ul class="nav nav-tabs" role="tablist">
-        <li id="about-tab" class="active embed_mode_elem_hide"><a href="#about" aria-controls="about" role="tab" data-toggle="tab">About</a></li>
+        <li id="about-tab" class="active"><a href="#about" aria-controls="about" role="tab" data-toggle="tab">About</a></li>
         <li id="summary-tab"><a href="#protein_summary" aria-controls="summary" role="tab" data-toggle="tab">Summary <span id="summary_ident" class="badge"></span></a></li>
         <li id="comments-tab"><a href="#protein_comments" aria-controls="comments" role="tab" data-toggle="tab">Curated Comments <span id="comments_num_rows" class="badge"></span></a></li>
         <li id="features-tab"><a href="#protein_features" aria-controls="features" role="tab" data-toggle="tab">Features <span id="features_num_rows" class="badge"></span></a></li>
@@ -37,7 +49,56 @@
     <!-- Tab panes -->
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade in active" id="about">
-            About
+            <a href="https://apps.araport.org/thalemine" target="_blank"><img src="https://s.gravatar.com/avatar/978e836a9d65238a784543ad932637cd.png" alt="Araport logo"/></a>
+            <p>This app displays protein data (in table format) obtained from <a href="https://apps.ararport.org/thalemine" target="_blank">ThaleMine <i class="fa fa-external-link"></i></a>,
+            an Arabidopsis-specific instance of <a href="http://intermine.org" target="_blank">InterMine <i class="fa fa-external-link"></i></a>. InterMine is an open source data
+            warehouse built specifically for the integration and analysis of biological data. The specific data displayed in the app includes curated comments (UniProt), features (UniProt),
+            protein domain regions (InterPro), and publications associated with a protein (UniProt & NCBI).</p>
+
+            <h4>Instructions</h4>
+            <p>To get started, enter a protein identifier in the search box and click on the <strong>Search</strong> button. At this point,
+            data will be loaded in five tabs labeled <strong>Summary</strong>, <strong>Curated Comments</strong>, <strong>Features</strong>, <strong>Protein Domain Regions</strong>, and <strong>Publications</strong>.
+            The number of records found in each category will be displayed on the tab. The <strong>Summary</strong> tab displays summary protein information such
+            as protein ID, name, source, length, molecular weight, synonyms, keywords, and UniProt information. The <strong>Curated Comments</strong> tab lists curated comments from UniProt. The <strong>Features</strong>
+            tab lists the features of the protein from UniProt. The <strong>Protein Domain Regions</strong> tab lists all of the protein domain regions from InterPro.
+            Finally, the <strong>Publications</strong> tab lists all of the publications associated with the selected protein.</p>
+
+            <h5>Features (Tables)</h5>
+            <p>
+                <ul>
+                    <li>Sort the table by any column by clicking on the column header.</li>
+                    <li>Change the columns that are shown by clicking on the <strong>Column visibility</strong> button and then selecting/de-selecting the columns.</li>
+                    <li>Export all of the data in the Curated Comments, Features, Protein Domain Regions, or Publications table in CSV or Excel format by clicking on the <strong>CSV</strong> or <strong>Excel</strong> button.</li>
+                    <li>Export options:</li>
+                        <ul>
+                            <li>When exporting CSV or Excel data, the file is saved without prompting in the browser's current download location and will be named as follows:
+                                <ul>
+                                    <li>For Curated Comments data:</li>
+                                        <ul><li><b>Comments_for-&lt;query&gt;.(csv/xlsx)</b></li></ul>
+                                    <li>For Features data:</li>
+                                        <ul><li><b>Features_for-&lt;query&gt;.(csv/xlsx)</b></li></ul>
+                                    <li>For Protein Domain Regions data:</li>
+                                        <ul><li><b>Protein_Domain_Regions_for-&lt;query&gt;.(csv/xlsx)</b></li></ul>
+                                    <li>For Publication data:</li>
+                                        <ul><li><b>Publications_for-&lt;query&gt;.(csv/xlsx)</b></li></ul>
+                                </ul>
+                            <li><em>NOTE: when using Safari for the Mac</em></li>
+                                <ul>
+                                    <li><em>Excel export may not work (Adobe Flash is required)</em></li>
+                                    <li><em>The file will be opened in a new tab or window and <b>File->Save As...</b> must be used to save the file.</em></li>
+                                </ul>
+                        </ul>
+                    <li>Filter the results further by entering text in the <strong>Search</strong> box in the upper-right of the table.</li>
+                    <li>Clicking on a PubMed ID will display the publication at NCBI.</li>
+                </ul>
+            </p>
+
+            <h4>Authors</h4>
+            <p>
+                <ul>
+                    <li>Erik Ferlanti, JCVI</li>
+                </ul>
+            </p>
         </div>
 
         <!-- Data tables -->
