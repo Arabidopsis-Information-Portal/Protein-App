@@ -4,6 +4,7 @@
 (function(window, $, _, moment, undefined) {
     'use strict';
     var appContext = $('[data-app-name="protein-app"]');
+    var default_tab_text = 'Please enter an identifier above to search for protein data.';
 
     // Only runs once Agave is ready
     window.addEventListener('Agave::ready', function() {
@@ -128,6 +129,26 @@
             $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
         };
 
+        var disableForm = function disableForm() {
+            var search_button = $('#searchButton', appContext);
+            search_button.html('<i class="fa fa-refresh fa-spin"></i> Searching...');
+            search_button.prop('disabled', true);
+            $('#protein_id', appContext).prop('disabled', true);
+            $('#datasource1', appContext).prop('disabled', true);
+            $('#datasource2', appContext).prop('disabled', true);
+            $('#clearButton', appContext).prop('disabled', true);
+        };
+
+        var enableForm = function enableForm() {
+            var search_button = $('#searchButton', appContext);
+            search_button.html('Search');
+            search_button.prop('disabled', false);
+            $('#protein_id', appContext).prop('disabled', false);
+            $('#datasource1', appContext).prop('disabled', false);
+            $('#datasource2', appContext).prop('disabled', false);
+            $('#clearButton', appContext).prop('disabled', false);
+        };
+
         var showSummaryTable = function showSummaryTable(json) {
             $('#progress_region', appContext).addClass('hidden');
             $('#summary_ident', appContext).empty();
@@ -137,6 +158,7 @@
             }
 
             $('a[href="#protein_summary"]', appContext).tab('show');
+            enableForm();
 
             if (json.obj.result[0]) {
                 $('#protein_summary_results', appContext).html(templates.summaryTable(json.obj.result[0]));
@@ -165,7 +187,7 @@
             $('#protein_comments_results', appContext).html(templates.commentsTable(json.obj));
             var commentsTable = $('#protein_comments_results table', appContext).DataTable( {'lengthMenu': [10, 25, 50, 100],
                                                                                          'language': {
-                                                                                             'emptyTable': 'No comments data available for this protein id.'
+                                                                                             'emptyTable': 'No curated comments available for this protein id.'
                                                                                          },
                                                                                          'buttons': [{'extend': 'csv', 'title': filename},
                                                                                                      {'extend': 'excel', 'title': filename},
@@ -279,11 +301,11 @@
             $('#regions_num_rows', appContext).empty();
             $('#pub_num_rows', appContext).empty();
             // clear the tables
-            $('#protein_summary_results', appContext).html('<h4>Please search for a protein.</h4>');
-            $('#protein_comments_results', appContext).html('<h4>Please search for a protein.</h4>');
-            $('#protein_features_results', appContext).html('<h4>Please search for a protein.</h4>');
-            $('#protein_domain_regions_results', appContext).html('<h4>Please search for a protein.</h4>');
-            $('#protein_pub_results', appContext).html('<h4>Please search for a protein.</h4>');
+            $('#protein_summary_results', appContext).html('<h4>' + default_tab_text + '</h4>');
+            $('#protein_comments_results', appContext).html('<h4>' + default_tab_text + '</h4>');
+            $('#protein_features_results', appContext).html('<h4>' + default_tab_text + '</h4>');
+            $('#protein_domain_regions_results', appContext).html('<h4>' + default_tab_text + '</h4>');
+            $('#protein_pub_results', appContext).html('<h4>' + default_tab_text + '</h4>');
             // select the about tab
             $('a[href="#about"]', appContext).tab('show');
         });
@@ -295,6 +317,9 @@
 
             // Reset error div
             $('#error', appContext).empty();
+
+            // disable form
+            disableForm();
 
             // Inserts loading text, will be replaced by table
             $('#protein_summary_results', appContext).html('<h4>Loading summary information...</h4>');
