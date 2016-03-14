@@ -326,7 +326,7 @@
             $('#protein_comments_results', appContext).html('<h4>Loading comments...</h4>');
             $('#protein_features_results', appContext).html('<h4>Loading features...</h4>');
             $('#protein_domain_regions_results', appContext).html('<h4>Loading protein domain regions...</h4>');
-            $('#protein_pub_results', appContext).html('<h4>Loading protein domain regions...</h4>');
+            $('#protein_pub_results', appContext).html('<h4>Loading publications...</h4>');
 
             // start progress bar and tab spinners
             $('#progress_region', appContext).removeClass('hidden');
