@@ -5,10 +5,12 @@
     'use strict';
     var appContext = $('[data-app-name="protein-app"]');
     var default_tab_text = 'Please enter an identifier above to search for protein data.';
+    var number_of_adama_calls = 5;
 
     // Only runs once Agave is ready
     window.addEventListener('Agave::ready', function() {
         var Agave = window.Agave;
+        var adama_calls = number_of_adama_calls;
 
         var templates = {
             summaryTable: _.template('<table class="table table-bordered">' +
@@ -116,19 +118,6 @@
                    message + '</div>';
         };
 
-        // Displays an error message if the API returns an error
-        var showErrorMessage = function showErrorMessage(response) {
-            // clear progress bar and spinners
-            $('#progress_region', appContext).addClass('hidden');
-            $('#summary_ident', appContext).empty();
-            $('#comments_num_rows', appContext).empty();
-            $('#features_num_rows', appContext).empty();
-            $('#regions_num_rows', appContext).empty();
-            $('#pub_num_rows', appContext).empty();
-            console.error('Status: ' + response.obj.status + ' Message: ' + response.obj.message);
-            $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
-        };
-
         var disableForm = function disableForm() {
             var search_button = $('#searchButton', appContext);
             search_button.html('<i class="fa fa-refresh fa-spin"></i> Searching...');
@@ -149,8 +138,31 @@
             $('#clearButton', appContext).prop('disabled', false);
         };
 
+        // re-enables form after all Adama calls have returned
+        var checkAllCalls = function checkAllCalls() {
+            --adama_calls;
+            console.log('Adama calls remaining: ' + adama_calls);
+            if (adama_calls === 0) {
+                console.log('Re-enabling form... all calls returned.');
+                enableForm();
+                adama_calls = number_of_adama_calls;
+            }
+        };
+
+        // Displays an error message if the API returns an error
+        var showErrorMessage = function showErrorMessage(response) {
+            // clear progress bar and spinners
+            $('#summary_ident', appContext).empty();
+            $('#comments_num_rows', appContext).empty();
+            $('#features_num_rows', appContext).empty();
+            $('#regions_num_rows', appContext).empty();
+            $('#pub_num_rows', appContext).empty();
+            console.error('Status: ' + response.obj.status + ' Message: ' + response.obj.message);
+            $('#error', appContext).html(errorMessage('API Error: ' + response.obj.message));
+            checkAllCalls();
+        };
+
         var showSummaryTable = function showSummaryTable(json) {
-            $('#progress_region', appContext).addClass('hidden');
             $('#summary_ident', appContext).empty();
             if ( ! (json && json.obj) || json.obj.status !== 'success') {
                 $('#error', appContext).html(errorMessage('Invalid response from server!'));
@@ -158,7 +170,6 @@
             }
 
             $('a[href="#protein_summary"]', appContext).tab('show');
-            enableForm();
 
             if (json.obj.result[0]) {
                 $('#protein_summary_results', appContext).html(templates.summaryTable(json.obj.result[0]));
@@ -169,6 +180,7 @@
             }
 
             $('#summary_ident', appContext).html(' ' + json.obj.result[0].protein_id);
+            checkAllCalls();
         };
 
         var showCommentsTable = function showCommentsTable(json) {
@@ -197,6 +209,7 @@
                                                                                         } );
 
             $('#comments_num_rows', appContext).html(' ' + commentsTable.data().length);
+            checkAllCalls();
         };
 
         var showFeaturesTable = function showFeaturesTable(json) {
@@ -226,6 +239,7 @@
                                                                                         } );
 
             $('#features_num_rows', appContext).html(' ' + featureTable.data().length);
+            checkAllCalls();
         };
 
         var showRegionsTable = function showRegionsTable(json) {
@@ -255,6 +269,7 @@
                                                                                         } );
 
             $('#regions_num_rows', appContext).html(' ' + regionsTable.data().length);
+            checkAllCalls();
         };
 
         var showPublicationTable = function showPublicationTable(json) {
@@ -284,17 +299,20 @@
                                                                                } );
 
             $('#pub_num_rows', appContext).html(' ' + pubTable.data().length);
+            checkAllCalls();
         };
 
         // controls the clear button
         $('#clearButton', appContext).on('click', function () {
+            // reset adama call counter
+            adama_calls = number_of_adama_calls;
+
             // clear the gene field
             $('#protein_id', appContext).val('');
             $('#datasource1', appContext).prop('checked', true);
             // clear the error section
             $('#error', appContext).empty();
             // clear the number of result rows from the tabs
-            $('#progress_region', appContext).addClass('hidden');
             $('#summary_ident', appContext).empty();
             $('#comments_num_rows', appContext).empty();
             $('#features_num_rows', appContext).empty();
@@ -329,7 +347,6 @@
             $('#protein_pub_results', appContext).html('<h4>Loading publications...</h4>');
 
             // start progress bar and tab spinners
-            $('#progress_region', appContext).removeClass('hidden');
             $('#summary_ident', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#comments_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#features_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
