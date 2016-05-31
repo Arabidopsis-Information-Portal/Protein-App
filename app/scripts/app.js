@@ -27,10 +27,10 @@
                                      '<tr><th class="row-header">Primary Accession</th><td><%= primary_accession %></td></tr>' +
                                      '<tr><th class="row-header">Secondary Identifier</th><td><%= secondary_identifier %></td></tr>' +
                                      '<tr><th class="row-header">Synonyms</th><td>' +
-                                     '<%= s.join(", ", synonyms) %>' +
+                                     '<%= synonyms.join(", ") %>' +
                                      '</td></tr>' +
                                      '<tr><th class="row-header">Keywords</th><td>' +
-                                     '<%= s.join(", ", keywords) %>' +
+                                     '<%= keywords.join(", ") %>' +
                                      '</td></tr>' +
                                      '</tbody></table>'),
             commentsTable: _.template('<table class="table table-bordered table-striped">' +
@@ -123,8 +123,6 @@
             search_button.html('<i class="fa fa-refresh fa-spin"></i> Searching...');
             search_button.prop('disabled', true);
             $('#protein_id', appContext).prop('disabled', true);
-            $('#datasource1', appContext).prop('disabled', true);
-            $('#datasource2', appContext).prop('disabled', true);
             $('#clearButton', appContext).prop('disabled', true);
         };
 
@@ -133,8 +131,6 @@
             search_button.html('Search');
             search_button.prop('disabled', false);
             $('#protein_id', appContext).prop('disabled', false);
-            $('#datasource1', appContext).prop('disabled', false);
-            $('#datasource2', appContext).prop('disabled', false);
             $('#clearButton', appContext).prop('disabled', false);
         };
 
@@ -171,15 +167,17 @@
 
             $('a[href="#protein_summary"]', appContext).tab('show');
 
+            var search_ident = $('#protein_id', appContext).val();
+            var summary_tab_id = '';
             if (json.obj.result[0]) {
                 $('#protein_summary_results', appContext).html(templates.summaryTable(json.obj.result[0]));
+                summary_tab_id = json.obj.result[0].protein_id;
             } else {
                 $('#protein_summary_results', appContext).html('');
-                var search_ident = $('#protein_id', appContext).val();
                 $('#error', appContext).html(warningMessage('No results found for protein identifier \'' + search_ident + '\'. Please try again.'));
             }
 
-            $('#summary_ident', appContext).html(' ' + json.obj.result[0].protein_id);
+            $('#summary_ident', appContext).html(' ' + summary_tab_id);
             checkAllCalls();
         };
 
@@ -353,45 +351,42 @@
             $('#regions_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
             $('#pub_num_rows', appContext).html('<i class="fa fa-refresh fa-spin"></i>');
 
-            var source = $('input[name=datasource]:checked').val();
-
             var params = {
-                identifier: this.protein_id.value,
-                source: source
+                identifier: this.protein_id.value
             };
 
             // Calls ADAMA adapter to retrieve protein summary data
             Agave.api.adama.search({
                 'namespace': 'araport',
-                'service': 'protein_summary_by_identifier_v0.1',
+                'service': 'protein_summary_by_identifier_v0.2',
                 'queryParams': params
             }, showSummaryTable, showErrorMessage);
 
             // Calls ADAMA adapter to retrieve protein curated comments
             Agave.api.adama.search({
                 'namespace': 'araport',
-                'service': 'curated_comments_by_protein_identifier_v0.1',
+                'service': 'curated_comments_by_protein_identifier_v0.2',
                 'queryParams': params
             }, showCommentsTable, showErrorMessage);
 
             // Calls ADAMA adapter to retrieve protein features
             Agave.api.adama.search({
                 'namespace': 'araport',
-                'service': 'protein_features_by_identifier_v0.1',
+                'service': 'protein_features_by_identifier_v0.2',
                 'queryParams': params
             }, showFeaturesTable, showErrorMessage);
 
             // Calls ADAMA adapter to retrieve protein domain regions
             Agave.api.adama.search({
                 'namespace': 'araport',
-                'service': 'protein_domain_regions_by_identifier_v0.1',
+                'service': 'protein_domain_regions_by_identifier_v0.2',
                 'queryParams': params
             }, showRegionsTable, showErrorMessage);
 
             // Calls ADAMA adapter to retrieve protein publications
             Agave.api.adama.search({
                 'namespace': 'araport',
-                'service': 'publications_by_protein_identifier_v0.1',
+                'service': 'publications_by_protein_identifier_v0.2',
                 'queryParams': params
             }, showPublicationTable, showErrorMessage);
         });
