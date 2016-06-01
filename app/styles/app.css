@@ -21,3 +21,7 @@ h4 {
 .button-row {
     float: right;
 }
+
+.fasta-box {
+  font-family: monospace;
+}

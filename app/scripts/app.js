@@ -1,5 +1,6 @@
 /* global _ */
 /* global moment */
+/* global Clipboard */
 /* jshint camelcase: false */
 (function(window, $, _, moment, undefined) {
     'use strict';
@@ -11,6 +12,7 @@
     window.addEventListener('Agave::ready', function() {
         var Agave = window.Agave;
         var adama_calls = number_of_adama_calls;
+        new Clipboard('.btn-clipboard');
 
         var templates = {
             summaryTable: _.template('<table class="table table-bordered">' +
@@ -145,6 +147,13 @@
             }
         };
 
+        var formatSequence = function formatSequence(sequence, ident, length) {
+            var regex = new RegExp('(.{' + length + '})', 'g');
+            var displaySeq = sequence.replace(regex, '$1\n');
+            var content = '>' + ident + '\n' + displaySeq;
+            return content;
+        };
+
         // Displays an error message if the API returns an error
         var showErrorMessage = function showErrorMessage(response) {
             // clear progress bar and spinners
@@ -172,6 +181,30 @@
             if (json.obj.result[0]) {
                 $('#protein_summary_results', appContext).html(templates.summaryTable(json.obj.result[0]));
                 summary_tab_id = json.obj.result[0].protein_id;
+
+                // display sequence
+                Agave.api.adama.search({
+                    'namespace': 'aip',
+                    'service': 'get_protein_sequence_by_identifier_v0.2',
+                    'queryParams': {identifier: summary_tab_id}
+                }, function(search) {
+                    if (search && search.obj && search.obj.status === 'success') {
+                        var defline = search.obj.result[0].identifier;
+                        if (search.obj.result[0].name && search.obj.result[0].name !== '') {
+                            defline += ' (' + search.obj.result[0].name + ')';
+                        }
+                        var seq = search.obj.result[0].sequence;
+                        var fseq = formatSequence(seq, defline, 60);
+                        var display = '<br>' +
+                          '<textarea id="fasta_box" class="form-control fasta-box" rows="6" readonly>' +
+                          fseq +
+                          '</textarea>' +
+                          '<br>' +
+                          '<button class="btn-clipboard" data-clipboard-target="#fasta_box">' +
+                          '<i class="fa fa-clipboard"></i> Copy Sequence to Clipboard</button>';
+                          $('#protein_fasta').html(display);
+                    }
+                });
             } else {
                 $('#protein_summary_results', appContext).html('');
                 $('#error', appContext).html(warningMessage('No results found for protein identifier \'' + search_ident + '\'. Please try again.'));
@@ -322,6 +355,7 @@
             $('#protein_features_results', appContext).html('<h4>' + default_tab_text + '</h4>');
             $('#protein_domain_regions_results', appContext).html('<h4>' + default_tab_text + '</h4>');
             $('#protein_pub_results', appContext).html('<h4>' + default_tab_text + '</h4>');
+            $('#protein_fasta', appContext).empty();
             // select the about tab
             $('a[href="#about"]', appContext).tab('show');
         });
@@ -343,6 +377,7 @@
             $('#protein_features_results', appContext).html('<h4>Loading features...</h4>');
             $('#protein_domain_regions_results', appContext).html('<h4>Loading protein domain regions...</h4>');
             $('#protein_pub_results', appContext).html('<h4>Loading publications...</h4>');
+            $('#protein_fasta', appContext).empty();
 
             // start progress bar and tab spinners
             $('#summary_ident', appContext).html('<i class="fa fa-refresh fa-spin"></i>');

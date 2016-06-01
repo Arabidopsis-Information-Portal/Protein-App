@@ -11,6 +11,7 @@
     "datatables.net-colreorder": "~1.2.0",
     "datatables.net-colreorder-bs": "~1.2.0",
     "jszip": "~2.5.0",
-    "moment": "~2.10.6"
+    "moment": "~2.10.6",
+    "clipboard": "^1.5.10"
   }
 }
