@@ -1,12 +1,16 @@
 {
-  "icon": "",
-  "name": "protein-app",
-  "description": "Return protein information from ThaleMine",
+  "namespace" : "protein-app",
+  "name": "Protein App",
+  "description": "Display protein data (in table format) obtained from ThaleMine, an Arabidopsis-specific instance of InterMine.",
   "html": "app.html",
   "scripts": [
     "scripts/app.js"
   ],
   "styles": [
     "styles/app.css"
-  ]
+  ],
+  "tags": [
+    "arabidopsis", "protein", "ThaleMine", "InterMine"
+  ],
+  "icon": "app/images/logo.png"
 }

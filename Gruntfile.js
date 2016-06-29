@@ -169,7 +169,7 @@ module.exports = function(grunt) {
 
     inline: {
       dist: {
-        src: ['app/main.html'],
+        src: ['app/app.html'],
         dest: [ 'dist/' ],
         options:{
           cssmin: true,
@@ -286,7 +286,7 @@ module.exports = function(grunt) {
     if (newCont !== shtml){
         $.fs.writeFileSync(filePath, newCont);
     }
-    return true; 
+    return true;
   });
 
   /*
